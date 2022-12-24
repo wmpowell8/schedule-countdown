@@ -13,6 +13,10 @@
   color: var(--visited);
 }
 
+:any-link:active {
+  color: red;
+}
+
 select, option, #menu-open, dialog, #schedule-editor > li {
   background-color: var(--bg);
   color: var(--fg);
