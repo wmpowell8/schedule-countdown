@@ -57,26 +57,26 @@
         <div style="grid-area: 1 / 1 / span 1 / span 1;">
           <h2 style="text-align: center;">Import JSON</h2>
           <p><input type="file" id="json-import"></p>
-          <p style="margin-block-end: 0;">
+          <p style="font-size: .625em; max-width: 25em; margin-block-end: 0;">
             If the schedule failed to import automatically after choosing a file
             or if you would like to restore the selected file's contained schedule,
             press the button below.
           </p>
-          <p style="margin-block-start: 0;">
-            <button onclick="document.getElementById('json-import').onchange();">Import selected JSON file</button>
+          <p style="font-size: .625em; max-width: 25em; margin-block-start: 0;">
+            <button onclick="document.getElementById('json-import').onchange();" style="font-size: .75em;">Import selected JSON file</button>
           </p>
         </div>
         <div style="grid-area: 1 / 2 / span 1 / span 1;">
           <h2 style="text-align: center;">Export JSON</h2>
           <button onclick="exportSchedule();">Export Schedule as JSON to downloads</button>
-          <p style="display: none;" id="json-export-p">
+          <p style="display: none; font-size: .625em; max-width: 25em;" id="json-export-p">
             If your download does not begin automatically,
             you can click <a target="_blank" download="schedule.json" id="json-export-link">here</a> to download your exported schedule.
           </p>
         </div>
         <div style="grid-area: 2 / 1 / span 1 / span 2;">
           <h2 style="text-align: center;">Schedule Editor</h2>
-          <p><button onclick="updateSchedEditor();">Refresh Schedule Editor</button> (in case of desynchronization)</p>
+          <p style="font-size: .625em;"><button onclick="updateSchedEditor();" style="font-size: .75em;">Refresh Schedule Editor</button> (in case of desynchronization)</p>
           <ul id="schedule-editor"></ul>
           <p><button onclick="editEvent(events.length);">Add event</button><button onclick="clearSchedule();">Clear schedule</button></p>
         </div>
