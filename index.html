@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Schedule Countdown</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="script.js"></script>
+    <template id="seli"> <!-- SELI = Schedule Editor List Item -->
+      <li>
+        <button data-sub-id="del">Delete</button>
+        <button data-sub-id="edit">Edit</button>
+        <fieldset data-sub-id="type">
+          <legend>Event type</legend>
+        </fieldset>
+        <fieldset data-sub-id="name">
+          <legend>Event name</legend>
+        </fieldset>
+        <fieldset data-sub-id="time">
+          <legend>Event time</legend>
+        </fieldset>
+      </li>
+    </template>
+  </head>
+  <body>
+    <noscript>
+      <div style="position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); background-color: yellow; border: 7px solid red; color: black; padding: .5em; z-index: 2;">
+        <h1>No JavaScript?</h1>
+        <p>This utility <span style="font-style: italic; font-weight: bold;">requires JavaScript</span> in order to function.</p>
+        <p>Please <span style="font-style: italic; font-weight: bold;">enable JavaScript</span> in your browser settings so that this utility can function.</p>
+      </div>
+    </noscript>
+    <aside>
+      <ul id="menu-closed" style="display: block;">
+        <li><button onclick="
+          document.getElementById('menu-open').style.display = 'block';
+          document.getElementById('menu-closed').style.display = 'none';
+        ">Open menu</button></li>
+      </ul>
+      <ul id="menu-open" style="display: none;">
+        <li style="text-align: right;"><button onclick="
+          document.getElementById('menu-closed').style.display = 'block';
+          document.getElementById('menu-open').style.display = 'none';
+        ">Close menu</button></li>
+        <li><button onclick="document.getElementById('schedmgmt').showModal()">Manage Schedule</button></li>
+        <li>
+          <select id="themeselect">
+            <option value="light">Light theme</option>
+            <option value="dark" selected>Dark theme</option>
+          </select>
+        </li>
+        <li><button onclick="document.getElementById('about').showModal()">About</button></li>
+      </ul>
+    </aside>
+    <dialog id="schedmgmt">
+      <h1 style="text-align: center;">Manage Schedule</h1>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1em;">
+        <div style="grid-area: 1 / 1 / span 1 / span 1;">
+          <h2 style="text-align: center;">Import JSON</h2>
+          <p><input type="file" id="json-import"></p>
+          <p style="margin-block-end: 0;">
+            If the schedule failed to import automatically after choosing a file
+            or if you would like to restore the selected file's contained schedule,
+            press the button below.
+          </p>
+          <p style="margin-block-start: 0;">
+            <button onclick="document.getElementById('json-import').onchange();">Import selected JSON file</button>
+          </p>
+        </div>
+        <div style="grid-area: 1 / 2 / span 1 / span 1;">
+          <h2 style="text-align: center;">Export JSON</h2>
+          <button onclick="exportSchedule();">Export Schedule as JSON to downloads</button>
+          <p style="display: none;" id="json-export-p">
+            If your download does not begin automatically,
+            you can click <a target="_blank" download="schedule.json" id="json-export-link">here</a> to download your exported schedule.
+          </p>
+        </div>
+        <div style="grid-area: 2 / 1 / span 1 / span 2;">
+          <h2 style="text-align: center;">Schedule Editor</h2>
+          <p><button onclick="updateSchedEditor();">Refresh Schedule Editor</button> (in case of desynchronization)</p>
+          <ul id="schedule-editor"></ul>
+          <p><button onclick="editEvent(events.length);">Add event</button><button onclick="clearSchedule();">Clear schedule</button></p>
+        </div>
+      </div>
+      <p style="text-align: center;"><button onclick="document.getElementById('schedmgmt').close()">Close</button></p>
+    </dialog>
+    <dialog id="edit-event">
+      <h1>Edit event</h1>
+      <p><label for="eename">Event name: </label><input type="text" id="eename" name="eename"></p>
+      <p>
+        <label for="eeweekday eetime">Event time: </label>
+        <select id="eeweekday" name="eeweekday">
+          <option value="0">Sunday</option>
+          <option value="1">Monday</option>
+          <option value="2">Tuesday</option>
+          <option value="3">Wednesday</option>
+          <option value="4">Thursday</option>
+          <option value="5">Friday</option>
+          <option value="6">Saturday</option>
+        </select>
+        <input type="time" step=".001" value="00:00" required id="eetime" name="eetime">
+      </p>
+      <p>
+        <label for="eetype">Event type: </label>
+        <select id="eetype" name="eetype">
+          <option value="[false,false]">Instantaneous event</option>
+          <option value="[false,true]">Start of event</option>
+          <option value="[true,false]">End of event</option>
+          <option value="[true,true]">Encapsulating event</option>
+        </select>
+      </p>
+      <button onclick="document.getElementById('edit-event').close()">Cancel</button>
+      <button id="eeconfirm">OK</button>
+    </dialog>
+    <dialog id="about">
+      <h1>About</h1>
+      <p>Schedule Countdown Copyright &copy; William Powell 2022</p>
+      <p style="text-align: center;"><button onclick="document.getElementById('about').close()">Close</button></p>
+    </dialog>
+    <div id="timercontainer">
+      <div style="flex-grow: 2; border-bottom: 1px solid var(--fg);"><div id="clock">-d --:--:--_</div></div>
+      <div style="border-bottom: 1px solid var(--fg);"><div id="pecont"><span id="prevevent">-------------</span>:&nbsp;<span id="timesince">--:--</span></div></div>
+      <div><div id="necont"><span id="nextevent">-------------</span></div></div>
+      <div style="flex-grow: 3;"><div id="timeuntil">--:--</div></div>
+    </div>
+  </body>
+</html>
