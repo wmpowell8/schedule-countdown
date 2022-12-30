@@ -1,34 +1,24 @@
-/** @param object object
- * @return ScheduleEvent */
-function ScheduleEvent(object) {
-  for (const i of ['time', 'name', 'type']) if (object[i] !== undefined) this[i] = object[i];
-  
-  if (this.time === undefined) this.time = 0;
-  if (this.name === undefined) this.name = 'Event';
-  if (this.type === undefined) this.type = [false, false];
-}
-/** @param a ScheduleEvent
- * @param b ScheduleEvent
- * @return number */
-ScheduleEvent.compare = (a, b) => a.time < b.time ? -1 : a.time === b.time ? 0 : 1;
-
-/** @return number */
+/** @returns {number} */
 function getTime() {
   const d = new Date();
   return (d.getTime() - d.getTimezoneOffset() * 60_000 - new Date(0).getDay() * 86_400_000) % 604_800_000;
 }
 
-/** @param ms number
- * @return string */
-formatTime = ms => isNaN(ms) ? "N/A" : (
+/**
+ * @param {number} ms
+ * @returns {string}
+ */
+var formatTime = ms => isNaN(ms) ? "N/A" : (
   ms >= 86_400_000 ? `${Math.floor(ms/86_400_000)}:${Math.floor(ms/3_600_000 % 24).toString().padStart(2, '0')}:${Math.floor(ms/60_000 % 60).toString().padStart(2, '0')}` :
   ms >= 3_600_000 ? `${Math.floor(ms/3_600_000)}:${Math.floor(ms/60_000 % 60).toString().padStart(2, '0')}` : `${Math.floor(ms/60_000)}`)
   + `:${Math.floor(ms/1_000 % 60).toString().padStart(2, '0')}`;
 
-/** @param ms number
- * @param includeMs boolean
- * @return string */
-formatDateTime = (ms, includeMs = false) => isNaN(ms) ? "N/A" :
+/** 
+ * @param {number} ms
+ * @param {boolean} includeMs
+ * @returns {string}
+ */
+var formatDateTime = (ms, includeMs = false) => isNaN(ms) ? "N/A" :
   `${['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][Math.floor(ms/86_400_000) % 7]
   } ${(n => n < 1 ? 12 : Math.floor(n))(ms / 3_600_000 % 12).toString().padStart(2, '0')
   }:${Math.floor(ms / 60_000 % 60).toString().padStart(2, '0')}:${
@@ -38,7 +28,7 @@ formatDateTime = (ms, includeMs = false) => isNaN(ms) ? "N/A" :
 
 let events = [];
   
-/** @return ScheduleEvent[2] */
+/** @returns {[ScheduleEvent, ScheduleEvent]} */
 function getEvents() {
   if (events?.length <= 0) return [];
   const time = getTime();
@@ -74,11 +64,12 @@ function getEvents() {
 function exportSchedule() {
   const exportLink = document.getElementById("json-export-link");
   URL.revokeObjectURL(exportLink.href);
-  exportLink.href = URL.createObjectURL(new Blob([JSON.stringify({events: events})]));
+  exportLink.href = URL.createObjectURL(new Blob([JSON.stringify({version: 0, events: events})]));
   exportLink.click();
   document.getElementById("json-export-p").style.display = "block";
 }
 
+/** @param {number} index */
 function editEvent(index) {
   const reset = index >= events.length;
 
@@ -92,7 +83,7 @@ function editEvent(index) {
     Math.floor(t % 1_000).toString().padStart(3, '0')}`;
   document.getElementById('eetype').value = reset ? '[false,false]' : JSON.stringify(events[index].type);
   document.getElementById('eeconfirm').onclick = () => {
-    /** @type string */
+    /** @type {string} */
     const t = document.getElementById('eetime').value;
 
     events[index] = new ScheduleEvent({
@@ -164,7 +155,7 @@ onload = () => {
   const jsonImport = document.getElementById('json-import');
 
   const importSelectedFile = async () => {
-    /** @type File */
+    /** @type {File} */
     const file = jsonImport.files[0];
     if (file === undefined) throw new Error('No file inputted');
     
