@@ -64,7 +64,7 @@ function getEvents() {
 function exportSchedule() {
   const exportLink = document.getElementById("json-export-link");
   URL.revokeObjectURL(exportLink.href);
-  exportLink.href = URL.createObjectURL(new Blob([JSON.stringify({version: 0, events: events})]));
+  exportLink.href = URL.createObjectURL(new Blob([JSON.stringify({version: 0, mode: 'weekly', events: events})]));
   exportLink.click();
   document.getElementById("json-export-p").style.display = "block";
 }
