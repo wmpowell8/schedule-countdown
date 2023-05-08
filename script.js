@@ -135,21 +135,28 @@ function clearSchedule() {
 }
 
 onload = () => {
+  let colors;
+  const faviconAndTitle = initFaviconAndTitle();
+
   setInterval(() => {
     const e = getEvents();
     const t = getTime();
+    const formattedTime = formatTime(Math.ceil((e[1]?.time - t)/1000)*1000);
     document.getElementById("clock").innerText = formatDateTime(t);
     document.getElementById("timesince").innerText = formatTime(Math.floor((t - e[0]?.time)/1000)*1000);
     document.getElementById("prevevent").innerText = e[0]?.type[1] ? `Time elapsed during ${e[0]?.name}` : `Time since ${e[0]?.name}`;
-    document.getElementById("timeuntil").innerText = formatTime(Math.ceil((e[1]?.time - t)/1000)*1000);
+    document.getElementById("timeuntil").innerText = formattedTime;
     document.getElementById("nextevent").innerText = e[1]?.type[0] ? `Time remaining in ${e[1]?.name}` : `Time until ${e[1]?.name}`;
 
     for (const i of timercontainer.children) {
       i.firstChild.style.transform = `scale(${Math.min(i.clientHeight / i.firstChild.clientHeight, i.clientWidth / i.firstChild.clientWidth)})`;
     }
     
-    for (const i of [pecont, timesince]) i.style.opacity = Math.floor(e[0]?.time / 86_400_000) != Math.floor(t / 86_400_000) ? .5 : 1;
-    for (const i of [necont, timeuntil]) i.style.opacity = Math.floor(e[1]?.time / 86_400_000) != Math.floor(t / 86_400_000) ? .5 : 1;
+    for (const i of [pecont, timesince]) i.style.opacity = Math.floor(e[0]?.time / 86_400_000) !== Math.floor(t / 86_400_000) ? .5 : 1;
+    for (const i of [necont, timeuntil]) i.style.opacity = Math.floor(e[1]?.time / 86_400_000) !== Math.floor(t / 86_400_000) ? .5 : 1;
+
+    faviconAndTitle.updateFavicon(e[1]?.name, e[1]?.time - t, e[1]?.type[0], Math.floor(e[1]?.time / 86_400_000) === Math.floor(t / 86_400_000), colors);
+    faviconAndTitle.updateTitle(e[1]?.name, formattedTime, e[1]?.type[0]);
   }, 100);
 
   const jsonImport = document.getElementById('json-import');
@@ -191,7 +198,7 @@ onload = () => {
   setTimeout(() => importSelectedFile().catch(() => document.getElementById('schedmgmt').showModal()), 0);
   
   themeselect.onchange = function () {
-    const colors = Object.freeze({
+    colors = Object.freeze({
       'light': {
         '--bg': 'white',
         '--fg': 'black',
