@@ -138,25 +138,44 @@ onload = () => {
   let colors;
   const faviconAndTitle = initFaviconAndTitle();
 
+  const clockElem = document.getElementById("clock");
+  const timeSinceElem = document.getElementById("timesince");
+  const prevEventElem = document.getElementById("prevevent");
+  const timeUntilElem = document.getElementById("timeuntil");
+  const nextEventElem = document.getElementById("nextevent");
+
+  let cachedDisplayData = {};
   setInterval(() => {
     const e = getEvents();
     const t = getTime();
-    const formattedTime = formatTime(Math.ceil((e[1]?.time - t)/1000)*1000);
-    document.getElementById("clock").innerText = formatDateTime(t);
-    document.getElementById("timesince").innerText = formatTime(Math.floor((t - e[0]?.time)/1000)*1000);
-    document.getElementById("prevevent").innerText = e[0]?.type[1] ? `Time elapsed during ${e[0]?.name}` : `Time since ${e[0]?.name}`;
-    document.getElementById("timeuntil").innerText = formattedTime;
-    document.getElementById("nextevent").innerText = e[1]?.type[0] ? `Time remaining in ${e[1]?.name}` : `Time until ${e[1]?.name}`;
-
-    for (const i of timercontainer.children) {
-      i.firstChild.style.transform = `scale(${Math.min(i.clientHeight / i.firstChild.clientHeight, i.clientWidth / i.firstChild.clientWidth)})`;
-    }
+    const displayData = {
+      clock: formatDateTime(t),
+      timeSince: formatTime(Math.floor((t - e[0]?.time)/1000)*1000),
+      prevEvent: e[0]?.type[1] ? `Time elapsed during ${e[0]?.name}` : `Time since ${e[0]?.name}`,
+      timeUntil: formatTime(Math.ceil((e[1]?.time - t)/1000)*1000),
+      nextEvent: e[1]?.type[0] ? `Time remaining in ${e[1]?.name}` : `Time until ${e[1]?.name}`,
+      prevEventOpaque: Math.floor(e[0]?.time / 86_400_000) === Math.floor(t / 86_400_000),
+      nextEventOpaque: Math.floor(e[1]?.time / 86_400_000) === Math.floor(t / 86_400_000)
+    };
+    if (displayData.clock === cachedDisplayData?.clock) clockElem.innerText = displayData.clock;
+    if (displayData.timeSince === cachedDisplayData?.timeSince) timeSinceElem.innerText = displayData.timeSince;
+    if (displayData.prevEvent === cachedDisplayData?.prevEvent) prevEventElem.innerText = displayData.prevEvent;
+    if (displayData.timeUntil === cachedDisplayData?.timeUntil) timeUntilElem.innerText = displayData.timeUntil;
+    if (displayData.nextEvent === cachedDisplayData?.nextEvent) nextEventElem.innerText = displayData.nextEvent;
     
-    for (const i of [pecont, timesince]) i.style.opacity = Math.floor(e[0]?.time / 86_400_000) !== Math.floor(t / 86_400_000) ? .5 : 1;
-    for (const i of [necont, timeuntil]) i.style.opacity = Math.floor(e[1]?.time / 86_400_000) !== Math.floor(t / 86_400_000) ? .5 : 1;
+    if (displayData.prevEventOpaque === cachedDisplayData?.prevEventOpaque) for (const i of [pecont, timesince]) i.style.opacity = displayData.prevEventOpaque ? 1 : .5;
+    if (displayData.nextEventOpaque === cachedDisplayData?.nextEventOpaque) for (const i of [necont, timeuntil]) i.style.opacity = displayData.nextEventOpaque ? 1 : .5;
+
+    cachedDisplayData = displayData;
 
     faviconAndTitle.updateFavicon(e[1]?.name, e[1]?.time - t, e[1]?.type[0], Math.floor(e[1]?.time / 86_400_000) === Math.floor(t / 86_400_000), colors);
-    faviconAndTitle.updateTitle(e[1]?.name, formattedTime, e[1]?.type[0]);
+    faviconAndTitle.updateTitle(e[1]?.name, displayData.timeUntil, e[1]?.type[0]);
+  }, 1);
+
+  setInterval(() => {
+    // update scaling
+    for (const i of timercontainer.children)
+      i.firstChild.style.transform = `scale(${Math.min(i.clientHeight / i.firstChild.clientHeight, i.clientWidth / i.firstChild.clientWidth)})`;
   }, 100);
 
   const jsonImport = document.getElementById('json-import');
