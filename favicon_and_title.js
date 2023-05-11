@@ -55,6 +55,7 @@ function initFaviconAndTitle() {
     faviconCachedInfo.name = formattedName;
     faviconCachedInfo.time = formattedTime;
     faviconCachedInfo.type = type;
+    faviconCachedInfo.isOpaque = isOpaque;
     faviconCachedInfo.colorTheme = colorTheme;
 
     faviconContext.clearRect(0, 0, 16, 16);
