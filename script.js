@@ -157,14 +157,14 @@ onload = () => {
       prevEventOpaque: Math.floor(e[0]?.time / 86_400_000) === Math.floor(t / 86_400_000),
       nextEventOpaque: Math.floor(e[1]?.time / 86_400_000) === Math.floor(t / 86_400_000)
     };
-    if (displayData.clock === cachedDisplayData?.clock) clockElem.innerText = displayData.clock;
-    if (displayData.timeSince === cachedDisplayData?.timeSince) timeSinceElem.innerText = displayData.timeSince;
-    if (displayData.prevEvent === cachedDisplayData?.prevEvent) prevEventElem.innerText = displayData.prevEvent;
-    if (displayData.timeUntil === cachedDisplayData?.timeUntil) timeUntilElem.innerText = displayData.timeUntil;
-    if (displayData.nextEvent === cachedDisplayData?.nextEvent) nextEventElem.innerText = displayData.nextEvent;
+    if (displayData.clock !== cachedDisplayData?.clock) clockElem.innerText = displayData.clock;
+    if (displayData.timeSince !== cachedDisplayData?.timeSince) timeSinceElem.innerText = displayData.timeSince;
+    if (displayData.prevEvent !== cachedDisplayData?.prevEvent) prevEventElem.innerText = displayData.prevEvent;
+    if (displayData.timeUntil !== cachedDisplayData?.timeUntil) timeUntilElem.innerText = displayData.timeUntil;
+    if (displayData.nextEvent !== cachedDisplayData?.nextEvent) nextEventElem.innerText = displayData.nextEvent;
     
-    if (displayData.prevEventOpaque === cachedDisplayData?.prevEventOpaque) for (const i of [pecont, timesince]) i.style.opacity = displayData.prevEventOpaque ? 1 : .5;
-    if (displayData.nextEventOpaque === cachedDisplayData?.nextEventOpaque) for (const i of [necont, timeuntil]) i.style.opacity = displayData.nextEventOpaque ? 1 : .5;
+    if (displayData.prevEventOpaque !== cachedDisplayData?.prevEventOpaque) for (const i of [pecont, timesince]) i.style.opacity = displayData.prevEventOpaque ? 1 : .5;
+    if (displayData.nextEventOpaque !== cachedDisplayData?.nextEventOpaque) for (const i of [necont, timeuntil]) i.style.opacity = displayData.nextEventOpaque ? 1 : .5;
 
     cachedDisplayData = displayData;
 
