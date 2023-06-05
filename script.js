@@ -145,7 +145,7 @@ onload = () => {
   const nextEventElem = document.getElementById("nextevent");
 
   let cachedDisplayData = {};
-  setInterval(() => {
+  const updateMainView = () => {
     const e = getEvents();
     const t = getTime();
     const displayData = {
@@ -168,15 +168,22 @@ onload = () => {
 
     cachedDisplayData = displayData;
 
-    faviconAndTitle.updateFavicon(e[1]?.name, e[1]?.time - t, e[1]?.type[0], Math.floor(e[1]?.time / 86_400_000) === Math.floor(t / 86_400_000), colors);
-    faviconAndTitle.updateTitle(e[1]?.name, displayData.timeUntil, e[1]?.type[0]);
-  }, 1);
-
-  setInterval(() => {
     // update scaling
     for (const i of timercontainer.children)
       i.firstChild.style.transform = `scale(${Math.min(i.clientHeight / i.firstChild.clientHeight, i.clientWidth / i.firstChild.clientWidth)})`;
-  }, 100);
+
+    requestIdleCallback(updateMainView);
+  };
+  updateMainView();
+
+  const updateFaviconTitle = () => {
+    const t = getTime();
+    const e = getEvents();
+    faviconAndTitle.updateFavicon(e[1]?.name, e[1]?.time - t, e[1]?.type[0], Math.floor(e[1]?.time / 86_400_000) === Math.floor(t / 86_400_000), colors);
+    faviconAndTitle.updateTitle(e[1]?.name, formatTime(Math.ceil((e[1]?.time - t)/1000)*1000), e[1]?.type[0]);
+    setTimeout(updateFaviconTitle, 1000 - (t % 1000));
+  };
+  updateFaviconTitle();
 
   const jsonImport = document.getElementById('json-import');
 
