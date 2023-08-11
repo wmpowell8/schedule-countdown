@@ -247,5 +247,6 @@ onload = () => {
     for (const i in colors) {document.documentElement.style.setProperty(i, colors[i]);}
   };
 
+  if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) themeselect.value = 'light';
   themeselect.onchange();
 };
