@@ -15,15 +15,15 @@ var formatTime = ms => isNaN(ms) ? "N/A" : (
 
 /** 
  * @param {number} ms
- * @param {boolean} includeMs
+ * @param {boolean} scheduleEditorFormat
  * @returns {string}
  */
-var formatDateTime = (ms, includeMs = false) => isNaN(ms) ? "N/A" :
+var formatDateTime = (ms, scheduleEditorFormat = false) => isNaN(ms) ? "N/A" :
   `${['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][Math.floor(ms/86_400_000) % 7]
   } ${(n => n < 1 ? 12 : Math.floor(n))(ms / 3_600_000 % 12).toString().padStart(2, '0')
-  }:${Math.floor(ms / 60_000 % 60).toString().padStart(2, '0')}:${
-  Math.floor(ms / 1_000 % 60).toString().padStart(2, '0')
-  }${includeMs ? '.' + Math.floor(ms % 1_000).toString().padStart(3, '0') : ''
+  }:${Math.floor(ms / 60_000 % 60).toString().padStart(2, '0')
+  }${!scheduleEditorFormat || Math.floor(ms) % 60_000 !== 0 ? ':' + Math.floor(ms / 1_000 % 60).toString().padStart(2, '0') : ''
+  }${scheduleEditorFormat && Math.floor(ms) % 1_000 !== 0 ? '.' + Math.floor(ms % 1_000).toString().padStart(3, '0') : ''
   }${ms % 86_400_000 >= 43_200_000 ? 'p' : 'a'}`;
 
 let events = [];
