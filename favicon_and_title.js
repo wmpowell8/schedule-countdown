@@ -8,9 +8,17 @@ function initFaviconAndTitle() {
     return false;
   }
 
-  const faviconCanvas = document.createElement('canvas');
-  for (const i of ['width', 'height']) faviconCanvas[i] = 16;
-  const faviconContext = faviconCanvas.getContext('2d');
+  let testingCtx;
+  try {
+    const testingCanvas = document.createElement('canvas');
+    testingCanvas.width = 0;
+    testingCanvas.height = 0;
+    testingCtx = testingCanvas.getContext('2d');
+  } catch (err) {
+    console.error('Error initializing canvas to use for text measurement in favicon:\n\n%o\n\nText in favicon may be stretched out from its original size.', err);
+    testingCtx = { measureText: (_) => { return { width: Infinity }; } };
+  }
+
   const favicon = document.querySelector('head>link[rel="shortcut icon"]');
   let faviconCachedInfo = {};
   function updateFavicon(name, time, type, isOpaque, colorTheme) {
@@ -42,8 +50,8 @@ function initFaviconAndTitle() {
         .split(' ')
         .map(s => s?.[0])
         .join('')
-    : 'N/A';
-    
+      : 'N/A';
+
     if (
       faviconCachedInfo?.name === formattedName &&
       faviconCachedInfo?.time === formattedTime &&
@@ -58,37 +66,61 @@ function initFaviconAndTitle() {
     faviconCachedInfo.isOpaque = isOpaque;
     faviconCachedInfo.colorTheme = colorTheme;
 
-    faviconContext.clearRect(0, 0, 16, 16);
-    faviconContext.strokeStyle = colorTheme?.['--bg'] ?? 'black';
-    faviconContext.lineWidth = 3;
-    faviconContext.filter = isOpaque ? 'opacity(1)' : 'opacity(0.5)';
+    const adjustNameLength = testingCtx.measureText(formattedName).width >= 13;
+    const adjustTimeLength = testingCtx.measureText(formattedTime).width >= 16;
 
-    const titleFont = 'bold 8px "Open Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif';
-    const timerFont = 'bold 9px "Open Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif';
-    
-    // draw stroke
-    faviconContext.font = titleFont;
-    faviconContext.strokeText(formattedName, 0, 7, 13);
-    faviconContext.moveTo(type ? 14 : 15, 1);
-    faviconContext.lineTo(type ? 15 : 14, 2);
-    faviconContext.lineTo(type ? 15 : 14, 5);
-    faviconContext.lineTo(type ? 14 : 15, 6);
-    faviconContext.stroke();
-    faviconContext.font = timerFont;
-    faviconContext.strokeText(formattedTime, 0, 15, 16);
+    /** @param {string} qualifiedName @param {{ [attrib: string]: string; }} attribs */
+    const createSVGElementWithAttribs = (qualifiedName, attribs) => {
+      /** @type {SVGElement} */
+      const element = document.createElementNS('http://www.w3.org/2000/svg', qualifiedName);
+      for (const attrib in attribs) element.setAttribute(attrib, attribs[attrib]);
+      return element;
+    };
+    const svgTree = createSVGElementWithAttribs('svg', { width: '16', height: '16', xmlns: 'http://www.w3.org/2000/svg' });
+    svgTree.append(
+      createSVGElementWithAttribs('g', { filter: 'url(#favicon-transparency-filter)' }),
+      createSVGElementWithAttribs('filter', { id: 'favicon-transparency-filter' })
+    );
+    svgTree.children[0].append(
+      createSVGElementWithAttribs('text', Object.assign({
+        x: '0',
+        y: '7',
+        style: 'font: bold 8px "Open Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;',
+        fill: colorTheme?.['--fg'] ?? 'white',
+        stroke: colorTheme?.["--bg"] ?? 'black',
+        'stroke-width': '3',
+        'paint-order': 'stroke'
+      }, adjustNameLength ? { textLength: '13', lengthAdjust: 'spacingAndGlyphs' } : {})),
+      createSVGElementWithAttribs('path', {
+        d: type ? "M14,1v.5l1,1v3l-1,1v.5h1l1,-1v-4l-1,-1z" : "M16,1v.5l-1,1v3l1,1v.5h-1l-1,-1v-4l1,-1z",
+        fill: colorTheme?.['--fg'] ?? 'white',
+        stroke: colorTheme?.['--bg'] ?? 'black',
+        'stroke-width': '3',
+        'paint-order': 'stroke'
+      }),
+      createSVGElementWithAttribs('text', Object.assign({
+        x: '0',
+        y: '15',
+        style: 'font: bold 9px "Open Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;',
+        fill: colorTheme?.['--until'] ?? 'cyan',
+        stroke: colorTheme?.["--bg"] ?? 'black',
+        'stroke-width': '3',
+        'paint-order': 'stroke'
+      }, adjustTimeLength ? { textLength: '16', lengthAdjust: 'spacingAndGlyphs' } : {}))
+    );
+    svgTree.children[1].appendChild(
+      createSVGElementWithAttribs('feColorMatrix', {
+        in: 'BackgroundAlpha', type: 'matrix', values: `1 0 0 0                        0
+                                                        0 1 0 0                        0
+                                                        0 0 1 0                        0
+                                                        0 0 0 ${isOpaque ? '1' : '.5'} 0`
+      })
+    );
+    svgTree.children[0].children[0].textContent = formattedName;
+    svgTree.children[0].children[2].textContent = formattedTime;
 
-    // draw fill
-    faviconContext.font = titleFont;
-    faviconContext.fillStyle = colorTheme?.['--fg'] ?? 'white';
-    faviconContext.fillText(formattedName, 0, 7, 13);
-    faviconContext.fillRect(type ? 14 : 15, 1, 1, 1);
-    faviconContext.fillRect(type ? 15 : 14, 2, 1, 4);
-    faviconContext.fillRect(type ? 14 : 15, 6, 1, 1);
-    faviconContext.fillStyle = colorTheme?.['--until'] ?? 'cyan';
-    faviconContext.font = timerFont;
-    faviconContext.fillText  (formattedTime, 0, 15, 16);
-
-    favicon.href = faviconCanvas.toDataURL('image/x-icon');
+    URL.revokeObjectURL(favicon.href);
+    favicon.href = URL.createObjectURL(new Blob([svgTree.outerHTML], { type: 'image/svg+xml' }));
   }
 
   let oldTitle = 'Schedule Countdown';
