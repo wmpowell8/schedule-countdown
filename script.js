@@ -89,9 +89,9 @@ function editEvent(index) {
     events[index] = new ScheduleEvent({
       name: document.getElementById('eename').value,
       time: document.getElementById('eeweekday').value * 86_400_000 +
-        t.substr(0, 2) * 3_600_000 + t.substr(3, 2) * 60_000 +
-        (t.length > 5 ? t.substr(6, 2) * 1_000 : 0) +
-        (t.length > 8 ? t.substr(9, 3) * 1 : 0),
+        t.slice(0, 2) * 3_600_000 + t.slice(3, 5) * 60_000 +
+        (t.length > 5 ? t.slice(6, 8) * 1_000 : 0) +
+        (t.length > 8 ? t.slice(9, 12) * 1 : 0),
       type: JSON.parse(document.getElementById('eetype').value)
     });
 
