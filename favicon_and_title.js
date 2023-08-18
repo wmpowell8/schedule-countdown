@@ -66,7 +66,12 @@ function initFaviconAndTitle() {
     faviconCachedInfo.isOpaque = isOpaque;
     faviconCachedInfo.colorTheme = colorTheme;
 
+    const NAME_FONT = 'bold 8px "Open Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif';
+    const TIME_FONT = 'bold 9px "Open Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif';
+
+    testingCtx.font = NAME_FONT;
     const adjustNameLength = testingCtx.measureText(formattedName).width >= 13;
+    testingCtx.font = TIME_FONT;
     const adjustTimeLength = testingCtx.measureText(formattedTime).width >= 16;
 
     /** @param {string} qualifiedName @param {{ [attrib: string]: string; }} attribs */
@@ -85,7 +90,7 @@ function initFaviconAndTitle() {
       createSVGElementWithAttribs('text', Object.assign({
         x: '0',
         y: '7',
-        style: 'font: bold 8px "Open Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;',
+        style: `font: ${NAME_FONT};`,
         fill: colorTheme?.['--fg'] ?? 'white',
         stroke: colorTheme?.["--bg"] ?? 'black',
         'stroke-width': '3',
@@ -101,7 +106,7 @@ function initFaviconAndTitle() {
       createSVGElementWithAttribs('text', Object.assign({
         x: '0',
         y: '15',
-        style: 'font: bold 9px "Open Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;',
+        style: `font: ${TIME_FONT};`,
         fill: colorTheme?.['--until'] ?? 'cyan',
         stroke: colorTheme?.["--bg"] ?? 'black',
         'stroke-width': '3',
