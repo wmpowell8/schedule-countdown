@@ -182,7 +182,12 @@ onload = () => {
     faviconAndTitle.updateFavicon(e[1]?.name, e[1]?.time - t, e[1]?.type[0], Math.floor(e[1]?.time / 86_400_000) === Math.floor(t / 86_400_000), colors);
     faviconAndTitle.updateTitle(e[1]?.name, formatTime(Math.ceil((e[1]?.time - t)/1000)*1000), e[1]?.type[0]);
     const delay = ((((e[1]?.time ?? 0) - t) % 1000) + 1000) % 1000;
-    requestIdleCallback ? requestIdleCallback(updateFaviconTitle, { timeout: delay }) : setTimeout(updateFaviconTitle, delay);
+    try {
+      requestIdleCallback(updateFaviconTitle, { timeout: delay });
+    } catch (error) {
+      if (!(error instanceof ReferenceError)) throw error;
+      setTimeout(updateFaviconTitle, delay);
+    }
   };
   updateFaviconTitle();
 
