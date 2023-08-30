@@ -26,11 +26,12 @@ function initFaviconAndTitle() {
 
     const formattedTime = time ?
       secs >= 3600 ?
+        secs >= 360_000 ? `${Math.floor(secs / 3600)}:` :
         secs >= 36_000 ? `${Math.floor(secs / 3600)}:${Math.floor((secs / 600) % 6)}` :
         `${Math.floor(secs / 3600)}:${Math.floor((secs / 60) % 60).toString().padStart(2, '0')}` :
       secs >= 600 ? `${Math.floor(secs / 60)}'${Math.floor((secs / 10) % 6)}` :
       secs >= 60 ? `${Math.floor(secs / 60)}'${Math.floor(secs % 60).toString().padStart(2, '0')}` :
-      `${Math.floor(secs % 60).toString().padStart(2, '0')}"`
+      `${Math.floor(secs % 60)}"`
     : 'N/A';
     const formattedName = name ?
       [...name]
@@ -83,34 +84,27 @@ function initFaviconAndTitle() {
     };
     const svgTree = createSVGElementWithAttribs('svg', { width: '16', height: '16', xmlns: 'http://www.w3.org/2000/svg' });
     svgTree.append(
-      createSVGElementWithAttribs('g', { filter: 'url(#favicon-transparency-filter)' }),
+      createSVGElementWithAttribs('g', {
+        filter: 'url(#favicon-transparency-filter)',
+        fill: colorTheme?.['--fg'] ?? 'white',
+        stroke: colorTheme?.["--bg"] ?? 'black',
+        'stroke-width': '3',
+        'paint-order': 'stroke'
+      }),
       createSVGElementWithAttribs('filter', { id: 'favicon-transparency-filter' })
     );
     svgTree.children[0].append(
       createSVGElementWithAttribs('text', Object.assign({
         x: '0',
         y: '7',
-        style: `font: ${NAME_FONT};`,
-        fill: colorTheme?.['--fg'] ?? 'white',
-        stroke: colorTheme?.["--bg"] ?? 'black',
-        'stroke-width': '3',
-        'paint-order': 'stroke'
+        style: `font: ${NAME_FONT};`
       }, adjustNameLength ? { textLength: '13', lengthAdjust: 'spacingAndGlyphs' } : {})),
-      createSVGElementWithAttribs('path', {
-        d: type ? "M14,1v.5l1,1v3l-1,1v.5h1l1,-1v-4l-1,-1z" : "M16,1v.5l-1,1v3l1,1v.5h-1l-1,-1v-4l1,-1z",
-        fill: colorTheme?.['--fg'] ?? 'white',
-        stroke: colorTheme?.['--bg'] ?? 'black',
-        'stroke-width': '3',
-        'paint-order': 'stroke'
-      }),
+      createSVGElementWithAttribs('path', { d: type ? "M14,1v.5l1,1v3l-1,1v.5h1l1,-1v-4l-1,-1z" : "M16,1v.5l-1,1v3l1,1v.5h-1l-1,-1v-4l1,-1z" }),
       createSVGElementWithAttribs('text', Object.assign({
         x: '0',
         y: '15',
         style: `font: ${TIME_FONT};`,
-        fill: colorTheme?.['--until'] ?? 'cyan',
-        stroke: colorTheme?.["--bg"] ?? 'black',
-        'stroke-width': '3',
-        'paint-order': 'stroke'
+        fill: colorTheme?.['--until'] ?? 'cyan'
       }, adjustTimeLength ? { textLength: '16', lengthAdjust: 'spacingAndGlyphs' } : {}))
     );
     svgTree.children[1].appendChild(
