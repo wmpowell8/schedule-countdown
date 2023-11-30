@@ -83,15 +83,14 @@ function initFaviconAndTitle() {
       return element;
     };
     const svgTree = createSVGElementWithAttribs('svg', { width: '16', height: '16', xmlns: 'http://www.w3.org/2000/svg' });
-    svgTree.append(
+    svgTree.appendChild(
       createSVGElementWithAttribs('g', {
         filter: 'url(#favicon-transparency-filter)',
         fill: colorTheme?.['--fg'] ?? 'white',
         stroke: colorTheme?.["--bg"] ?? 'black',
         'stroke-width': '3',
         'paint-order': 'stroke'
-      }),
-      createSVGElementWithAttribs('filter', { id: 'favicon-transparency-filter' })
+      })
     );
     svgTree.children[0].append(
       createSVGElementWithAttribs('text', Object.assign({
@@ -107,7 +106,14 @@ function initFaviconAndTitle() {
         fill: colorTheme?.['--until'] ?? 'cyan'
       }, adjustTimeLength ? { textLength: '16', lengthAdjust: 'spacingAndGlyphs' } : {}))
     );
-    svgTree.children[1].appendChild(
+    svgTree.children[0].children[0].textContent = formattedName;
+    svgTree.children[0].children[2].textContent = formattedTime;
+    svgTree.appendChild(svgTree.children[0].cloneNode(true));
+    svgTree.children[0].removeAttribute('fill');
+    svgTree.children[0].children[2].removeAttribute('fill');
+    svgTree.children[1].removeAttribute('stroke');
+    svgTree.appendChild(createSVGElementWithAttribs('filter', { id: 'favicon-transparency-filter' }));
+    svgTree.children[2].appendChild(
       createSVGElementWithAttribs('feColorMatrix', {
         in: 'BackgroundAlpha', type: 'matrix', values: `1 0 0 0                        0
                                                         0 1 0 0                        0
@@ -115,8 +121,6 @@ function initFaviconAndTitle() {
                                                         0 0 0 ${isOpaque ? '1' : '.5'} 0`
       })
     );
-    svgTree.children[0].children[0].textContent = formattedName;
-    svgTree.children[0].children[2].textContent = formattedTime;
 
     URL.revokeObjectURL(favicon.href);
     favicon.href = URL.createObjectURL(new Blob([svgTree.outerHTML], { type: 'image/svg+xml' }));
