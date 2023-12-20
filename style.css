@@ -35,7 +35,7 @@ aside > ul {
 
 #timercontainer {
   width: 100%;
-  min-height: calc(100vh - 16px);
+  min-height: calc(100dvh - 16px);
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
